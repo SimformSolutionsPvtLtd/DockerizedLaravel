@@ -1,0 +1,72 @@
+version: "3.7"
+services:
+  app:
+    build:
+      args:
+        user: "simform"
+        uid: 1000
+      context: ./
+      dockerfile: Dockerfile
+    # command: php artisan migrate
+    image: laravel:7.29
+    container_name: laravel7-app
+    restart: unless-stopped
+    working_dir: /var/www
+    depends_on:
+      - mysql
+    networks:
+      - laravel7
+
+  nginx:
+    image: nginx:alpine
+    container_name: laravel9-nginx
+    restart: unless-stopped
+    tty: true
+    ports:
+      - 8000:80
+    volumes:
+      - ./:/var/www
+      - ./docker-compose/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - app
+    networks:
+      - laravel7
+
+  mysql:
+    image: 'mysql/mysql-server:8.0'
+    ports:
+        - '${FORWARD_DB_PORT:-3307}:3306'
+    environment:
+        MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+        MYSQL_ROOT_HOST: '%'
+        MYSQL_DATABASE: '${DB_DATABASE}'
+        MYSQL_USER: '${DB_USERNAME}'
+        MYSQL_PASSWORD: '${DB_PASSWORD}'
+        MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    networks:
+        - laravel7
+    volumes:
+        - 'laravel-mysql:/var/lib/mysql'
+
+  redis:
+    image: redis:latest
+    container_name: laravel-redis
+    volumes:
+      - ./docker/volumes/redis:/data
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - "6381:6379"
+    depends_on:
+      - app
+    networks:
+        - laravel7
+
+
+
+networks:
+  laravel7:
+    driver: bridge
+volumes:
+    laravel-mysql:
+        driver: local

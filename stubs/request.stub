@@ -1,0 +1,50 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\ValidationRequests;
+
+class {{ class }} extends ValidationRequests
+{
+
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array
+     */
+    public function rules()
+    {
+        return [
+            //
+        ];
+    }
+
+
+    /**
+     * Get custom messages for validator errors.
+     *
+     * @return array
+     */
+    public function messages(): array
+    {
+        return [
+             //
+        ];
+    }
+
+
+    /**
+     * decrypt keys
+     */
+    public function all($keys = null)
+    {
+        $attributes = parent::all();
+        if (isset($attributes['id']) && $attributes['id'] != "") {
+            $attributes['id'] = decryptId($attributes['id']);
+        }
+
+        return $attributes;
+    }
+}

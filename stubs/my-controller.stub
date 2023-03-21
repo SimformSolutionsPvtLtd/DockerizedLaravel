@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Http\Controllers\API;
+
+use App\Http\Controllers\Controller;
+use App\Repositories\{{repositoryName}};
+
+class {{class}} extends Controller
+{
+    /**
+     * {{class}} constructor.
+     *
+     * @param {{repositoryName}} $repository
+    */
+    public function __construct({{repositoryName}} $repository)
+    {
+        $this->repository = $repository;
+    }
+}

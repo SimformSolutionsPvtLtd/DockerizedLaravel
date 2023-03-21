@@ -15,10 +15,10 @@ use App\Http\Controllers\API\UserController;
 |
 */
 
-Route::post('register', [UserController::class, 'register']);
-Route::post('login', [UserController::class, 'login']);
+Route::post('register', [UserController::class, 'register'])->name('register');
+Route::post('login', [UserController::class, 'login'])->name('login');
 
 Route::middleware('auth:api')->group(function () {
-    Route::get('profile', [UserController::class, 'profile']);
-    Route::post('update/profile', [UserController::class, 'updateProfile']);
+    Route::get('profile', [UserController::class, 'profile'])->name('profile');
+    Route::post('update/profile', [UserController::class, 'updateProfile'])->name('update-profile');
 });

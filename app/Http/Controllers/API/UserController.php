@@ -2,39 +2,29 @@
 
 namespace App\Http\Controllers\API;
 
-use App\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\API\BaseController as BaseController;
-
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Repositories\UserRepository;
 class UserController extends BaseController
 {
+    /**
+     * UserController constructor.
+     *
+     * @param UserRepository $repository
+    */
+    public function __construct(UserRepository $repository)
+    {
+        $this->repository = $repository;
+    }
     /**
      * Register api
      *
      * @return \Illuminate\Http\Response
      */
-    public function register(Request $request)
+    public function register(RegisterRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'email' => 'required|email|unique:users',
-            'password' => 'required'
-        ]);
-
-        if ($validator->fails()) {
-            return $this->sendError($validator->errors()->first(), $validator->errors());
-        }
-
-        $input = $request->all();
-        $input['password'] = app('hash')->make($request->input('password'));
-
-        $user = User::create($input);
-        $success['token'] =  $user->createToken('MyApp')->accessToken;
-        $success['user'] =  $user;
-
-        return $this->sendResponse($success, 'User register successfully.');
+       return $this->repository->registerUser($request->all());
     }
 
     /**
@@ -42,26 +32,9 @@ class UserController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
-            'password' => 'required'
-        ]);
-
-        if ($validator->fails()) {
-            return $this->sendError($validator->errors()->first(), $validator->errors());
-        }
-
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-            $user = Auth::user();
-            $success['token'] =  $user->createToken('MyApp')->accessToken;
-            $success['user'] =  $user;
-
-            return $this->sendResponse($success, 'User login successfully.');
-        } else {
-            return $this->sendError('Unauthorised.', ['error' => 'Unauthorised']);
-        }
+        return $this->repository->userLogin($request);
     }
 
     /**
@@ -71,7 +44,7 @@ class UserController extends BaseController
      */
     public function profile()
     {
-        return $this->sendResponse(auth()->user(), 'User profile found successfully');
+        return $this->repository->getProfile();
     }
 
     /**
@@ -79,20 +52,8 @@ class UserController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function updateProfile(Request $request)
+    public function updateProfile(RegisterRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required'
-        ]);
-
-        if ($validator->fails()) {
-            return $this->sendError($validator->errors()->first(), $validator->errors());
-        }
-
-        $user = auth()->user();
-
-        $user->name = $request->name;
-        $user->save();
-        return $this->sendResponse($user, 'User profile updated successfully');
+       return $this->repository->updateUser($request);
     }
 }

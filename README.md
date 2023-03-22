@@ -14,4 +14,4 @@
 
 1. Open a web browser and navigate to `http://localhost:8000/api/documentation` to check api's using swagger
 2. Open a redis desktop manager and connect with port 6381
-3. Open Mysql Workbench and connect database with port 3307
+3. Open Mysql Workbench and connect database with port 3306
